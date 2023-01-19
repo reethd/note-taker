@@ -1,16 +1,25 @@
+//Set variables for required packages
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+
+//Set variable for database file
 const database = require("./db/db");
 
+//Set variable for express()
 const app = express();
+
+//Set variable for port
 const PORT = process.env.PORT || 3001;
 
+//Get access to public folder
 app.use(express.static("public"));
 
-app.use(express.urlencoded({ extemded: true }));
+//Allow express to interpret json data
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+//Send the html files to their respective routes as a response to client request
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "/public/index.html"));
 });
@@ -19,6 +28,10 @@ app.get("/notes", (req, res) => {
   res.sendFile(path.join(__dirname, "/public/notes.html"));
 });
 
+//GET and POST handlers for the '/api/notes' route. GET request will respond with
+//the json data from the database file and POST request will respond with pushing
+//a new note to the database array and assigning it a number as an id before then
+//rewriting the updated database file.
 app
   .route("/api/notes")
   .get((req, res) => {
@@ -49,6 +62,8 @@ app
     res.json(newNote);
   });
 
+//DELETE request finds and deletes the note from the database according to
+//its id number before rewriting the updated database file.
 app.delete("/api/notes/:id", (req, res) => {
   let jsonFilePath = path.join(__dirname, "/db/db.json");
   for (let i = 0; i < database.length; i++) {
@@ -68,4 +83,5 @@ app.delete("/api/notes/:id", (req, res) => {
   res.json(database);
 });
 
+//Opens up server at the provided port
 app.listen(PORT, () => console.log(`App listening on port ${PORT}`));
